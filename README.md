@@ -236,7 +236,7 @@ Receive migraine predictions locally
 
 ---
 
-### Model Improvements
+### In Progress
 Increase dataset size
 Improve prediction accuracy
 Add advanced ML models
@@ -252,7 +252,8 @@ To build a smart migraine prediction system that helps users identify migraine r
 
 ### Contribution
  Contributions are welcome.Feel free to fork the repository, improve the preprocessing pipeline, or enhance the prediction model.
- 
-``` contact
-Saad Sarfraz
- saadsarfraz438@gmail.com 
+
+### support
+- GitHub Issues - Bug reports and feature requests
+- GitHub Discussions - Questions and community chat
+- Reach out via: [![Twitter](https://img.shields.io/badge/Twitter-blue?logo=twitter)](https://x.com/Saadsarfraz438)
