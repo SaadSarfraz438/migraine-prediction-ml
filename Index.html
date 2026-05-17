@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MigraineIQ — Migraine Risk Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════ TOKENS ═══════════════ */
+:root {
+  --ink:      #0b2540;
+  --ink2:     #1e4068;
+  --ocean:    #1565c0;
+  --sky:      #2196f3;
+  --mist:     #e3f2fd;
+  --cloud:    #f5faff;
+  --slate:    #5a7a99;
+  --light:    #9bbdd4;
+  --card:     rgba(255,255,255,0.93);
+  --border:   rgba(33,150,243,0.15);
+  --sh-sm:    0 2px 12px rgba(11,37,64,0.07);
+  --sh-md:    0 8px 32px rgba(11,37,64,0.11);
+  --sh-lg:    0 20px 60px rgba(11,37,64,0.14);
+  --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 30px;
+  --ease: cubic-bezier(.4,0,.2,1);
+  --low:#00897b; --low-bg:#e0f2f1;
+  --med:#f57c00; --med-bg:#fff3e0;
+  --hi:#c62828;  --hi-bg:#ffebee;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Sora',sans-serif;background:var(--cloud);color:var(--ink);min-height:100vh;overflow-x:hidden;line-height:1.6}
+
+/* ── BG ── */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;
+  background:linear-gradient(148deg,#deedf9 0%,#f0f8ff 38%,#e8f4fd 70%,#dce9f5 100%)}
+.bg-c{position:absolute;border-radius:50%;filter:blur(72px);opacity:.26;animation:bgf 20s ease-in-out infinite alternate}
+.bg-c1{width:580px;height:580px;background:#90caf9;top:-140px;right:-140px;animation-delay:0s}
+.bg-c2{width:380px;height:380px;background:#64b5f6;bottom:-80px;left:-100px;animation-delay:-8s}
+.bg-c3{width:260px;height:260px;background:#bbdefb;top:44%;right:4%;animation-delay:-15s}
+.bg-grid{position:absolute;inset:0;
+  background-image:linear-gradient(rgba(33,150,243,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(33,150,243,.04) 1px,transparent 1px);
+  background-size:48px 48px}
+@keyframes bgf{from{transform:translate(0,0) scale(1)}to{transform:translate(24px,16px) scale(1.06)}}
+
+/* ── PAGE ── */
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+
+/* ── NAV ── */
+nav{width:100%;padding:17px 44px;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(245,250,255,.72);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{font-family:'Playfair Display',serif;font-size:1.38rem;font-weight:700;color:var(--ink)}
+.logo span{color:var(--sky)}
+.nav-tag{font-size:.7rem;font-weight:600;padding:5px 14px;border-radius:50px;
+  background:linear-gradient(135deg,var(--sky),var(--ocean));color:#fff;
+  letter-spacing:.06em;text-transform:uppercase;box-shadow:0 3px 10px rgba(33,150,243,.28)}
+
+/* ── HERO ── */
+.hero{width:100%;max-width:1080px;padding:80px 24px 60px;text-align:center}
+.hero-kicker{display:inline-flex;align-items:center;gap:8px;font-size:.73rem;font-weight:600;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--sky);
+  background:rgba(33,150,243,.09);border:1px solid rgba(33,150,243,.22);
+  border-radius:50px;padding:7px 18px;margin-bottom:22px;
+  animation:up .6s var(--ease) both}
+.hero-kicker::before{content:'◉';font-size:.64rem}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.1rem,5.2vw,3.7rem);
+  line-height:1.13;color:var(--ink);max-width:740px;margin:0 auto 20px;
+  animation:up .6s .1s var(--ease) both}
+.hero h1 em{font-style:italic;color:var(--sky)}
+.hero p{font-size:1rem;color:var(--slate);max-width:490px;margin:0 auto 42px;
+  font-weight:300;line-height:1.76;animation:up .6s .18s var(--ease) both}
+.cta-btn{display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,var(--sky),var(--ocean));color:#fff;border:none;
+  border-radius:50px;padding:15px 38px;font-family:'Sora',sans-serif;
+  font-size:.96rem;font-weight:600;cursor:pointer;
+  box-shadow:0 8px 24px rgba(33,150,243,.30);
+  transition:transform .35s var(--ease),box-shadow .35s var(--ease);
+  animation:up .6s .26s var(--ease) both}
+.cta-btn:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(33,150,243,.38)}
+.cta-btn svg{transition:transform .3s}
+.cta-btn:hover svg{transform:translateX(4px)}
+.trust-row{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:56px;animation:up .6s .34s var(--ease) both}
+.trust-pill{display:flex;align-items:center;gap:8px;background:var(--card);
+  border:1px solid var(--border);border-radius:50px;padding:9px 18px;
+  font-size:.78rem;font-weight:500;color:var(--ink2);box-shadow:var(--sh-sm);backdrop-filter:blur(10px)}
+
+/* ── FORM SECTION ── */
+.form-sec{width:100%;max-width:740px;padding:0 24px 100px}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:32px;animation:up .5s var(--ease) both}
+.prog-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.prog-lbl{font-size:.75rem;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:.08em}
+.prog-pct{font-size:.75rem;font-weight:700;color:var(--sky)}
+.prog-track{height:5px;background:rgba(33,150,243,.13);border-radius:10px;overflow:hidden}
+.prog-fill{height:100%;border-radius:10px;
+  background:linear-gradient(90deg,var(--sky),var(--ocean));
+  transition:width .55s var(--ease);box-shadow:0 0 10px rgba(33,150,243,.38)}
+.dots{display:flex;justify-content:center;gap:8px;margin-bottom:28px}
+.dot{width:30px;height:6px;border-radius:10px;background:rgba(33,150,243,.18);transition:all .4s var(--ease)}
+.dot.active{background:var(--sky);width:44px}
+.dot.done{background:var(--ocean);opacity:.55}
+
+/* CARD */
+.fcard{background:var(--card);border-radius:var(--r-xl);padding:42px 46px;
+  box-shadow:var(--sh-lg);border:1px solid var(--border);backdrop-filter:blur(18px);
+  position:relative;overflow:hidden}
+.fcard::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(33,150,243,.07) 0%,transparent 70%);pointer-events:none}
+
+/* STEP PANELS */
+.step{display:none;animation:stepIn .42s var(--ease) both}
+.step.active{display:block}
+@keyframes stepIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+.step-eye{font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--sky);margin-bottom:5px}
+.step-h{font-family:'Playfair Display',serif;font-size:1.55rem;color:var(--ink);margin-bottom:5px}
+.step-sub{font-size:.86rem;color:var(--slate);font-weight:300;margin-bottom:28px}
+
+/* FIELD */
+.field{margin-bottom:20px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--ink2);margin-bottom:7px;letter-spacing:.01em}
+.req{color:var(--sky);margin-left:2px}
+.target-tag{font-size:.67rem;font-weight:700;color:var(--sky);letter-spacing:.07em;
+  background:rgba(33,150,243,.10);border-radius:4px;padding:2px 7px;margin-left:6px;text-transform:uppercase}
+.hint{font-size:.73rem;color:var(--light);margin-top:4px}
+.err-msg{font-size:.73rem;color:#c62828;margin-top:4px;display:none}
+.field.has-err .err-msg{display:block}
+.field.has-err input,.field.has-err select{border-color:#c62828!important;box-shadow:0 0 0 3px rgba(198,40,40,.10)!important}
+
+input[type="text"],input[type="number"],input[type="email"],select{
+  width:100%;padding:12px 15px;border:1.5px solid rgba(33,150,243,.20);
+  border-radius:var(--r-sm);background:rgba(255,255,255,.86);
+  font-family:'Sora',sans-serif;font-size:.91rem;color:var(--ink);outline:none;
+  transition:border-color .3s var(--ease),box-shadow .3s var(--ease),background .3s var(--ease);
+  appearance:none}
+input:focus,select:focus{border-color:var(--sky);box-shadow:0 0 0 3px rgba(33,150,243,.13);background:#fff}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath fill='%235a7a99' d='M0 0l5.5 7L11 0z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;cursor:pointer}
+
+/* AGE ROW */
+.age-row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.age-badge{display:flex;align-items:center;padding:12px 15px;
+  background:rgba(33,150,243,.06);border:1.5px solid rgba(33,150,243,.18);
+  border-radius:var(--r-sm);font-size:.83rem;font-weight:600;color:var(--ocean);
+  min-height:46px;transition:all .3s var(--ease)}
+.age-badge.on{background:rgba(33,150,243,.11);border-color:var(--sky)}
+
+/* RADIO CARDS */
+.rg{display:grid;gap:9px}
+.rg.c2{grid-template-columns:1fr 1fr}
+.rg.c3{grid-template-columns:1fr 1fr 1fr}
+.ropt input{display:none}
+.ropt label{display:flex;align-items:center;justify-content:center;gap:7px;
+  padding:11px 14px;border:1.5px solid rgba(33,150,243,.18);border-radius:var(--r-sm);
+  background:rgba(255,255,255,.70);font-size:.84rem;font-weight:500;color:var(--slate);
+  cursor:pointer;transition:all .3s var(--ease);user-select:none;text-align:center}
+.ropt label:hover{border-color:var(--sky);background:rgba(33,150,243,.06);color:var(--ink)}
+.ropt input:checked + label{background:linear-gradient(135deg,rgba(33,150,243,.14),rgba(21,101,192,.10));
+  border-color:var(--sky);color:var(--ocean);font-weight:600;
+  box-shadow:0 3px 12px rgba(33,150,243,.18)}
+.ico{font-size:1.05rem}
+
+/* NAV BUTTONS */
+.btn-row{display:flex;gap:11px;margin-top:28px;align-items:center}
+.btn-back{display:flex;align-items:center;gap:5px;padding:12px 20px;background:transparent;
+  border:1.5px solid rgba(33,150,243,.25);border-radius:var(--r-sm);
+  font-family:'Sora',sans-serif;font-size:.86rem;font-weight:600;color:var(--slate);
+  cursor:pointer;transition:all .3s var(--ease)}
+.btn-back:hover{border-color:var(--sky);color:var(--sky);background:rgba(33,150,243,.05)}
+.btn-next{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px 26px;background:linear-gradient(135deg,var(--sky),var(--ocean));
+  color:#fff;border:none;border-radius:var(--r-sm);font-family:'Sora',sans-serif;
+  font-size:.93rem;font-weight:600;cursor:pointer;
+  box-shadow:0 6px 20px rgba(33,150,243,.28);transition:all .3s var(--ease)}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(33,150,243,.36)}
+.btn-submit{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px 26px;background:linear-gradient(135deg,#00897b,#00695c);
+  color:#fff;border:none;border-radius:var(--r-sm);font-family:'Sora',sans-serif;
+  font-size:.95rem;font-weight:700;cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,137,123,.28);transition:all .3s var(--ease)}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,137,123,.36)}
+
+/* ── LOADING ── */
+#loader{display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(240,248,255,.88);backdrop-filter:blur(18px);
+  flex-direction:column;align-items:center;justify-content:center;gap:26px}
+.pulse-wrap{position:relative;width:96px;height:96px}
+.pulse{position:absolute;inset:0;border-radius:50%;border:3px solid rgba(33,150,243,.24);
+  animation:pr 1.8s ease-out infinite}
+.pulse:nth-child(2){animation-delay:.6s}
+.pulse:nth-child(3){animation-delay:1.2s}
+.pulse-core{position:absolute;inset:17px;border-radius:50%;
+  background:linear-gradient(135deg,var(--sky),var(--ocean));
+  display:flex;align-items:center;justify-content:center;font-size:1.5rem;
+  box-shadow:0 6px 20px rgba(33,150,243,.34)}
+@keyframes pr{0%{transform:scale(.7);opacity:.8}100%{transform:scale(2);opacity:0}}
+.load-label{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--ink);text-align:center}
+.load-sub{font-size:.83rem;color:var(--slate);font-weight:300}
+.load-steps{display:flex;flex-direction:column;gap:7px}
+.load-step{display:flex;align-items:center;gap:9px;font-size:.8rem;color:var(--slate);
+  opacity:0;animation:up .4s var(--ease) both}
+.load-step .ldot{width:7px;height:7px;border-radius:50%;background:var(--sky);flex-shrink:0}
+
+/* ── RESULT ── */
+#result-sec{display:none;width:100%;max-width:740px;padding:0 24px 100px;animation:up .6s var(--ease) both}
+.rcard{background:var(--card);border-radius:var(--r-xl);padding:42px 46px;
+  box-shadow:var(--sh-lg);border:1px solid var(--border);backdrop-filter:blur(18px);margin-bottom:18px}
+
+/* RISK HEADER */
+.rhead{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:28px}
+.rhead h3{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);margin-bottom:5px}
+.rname{font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--ink);margin-bottom:3px}
+.rsub{font-size:.86rem;color:var(--slate)}
+.rbadge{flex-shrink:0;display:flex;flex-direction:column;align-items:center;
+  padding:13px 22px;border-radius:var(--r-md);text-align:center}
+.rbadge-num{font-family:'Playfair Display',serif;font-size:2.3rem;line-height:1;font-weight:700}
+.rbadge-lbl{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;margin-top:3px;font-weight:600}
+
+/* GAUGE */
+.gauge-wrap{text-align:center;margin:24px 0}
+.gauge-svg{width:210px;height:125px;display:block;margin:0 auto}
+.gscore-wrap{position:relative;text-align:center}
+.gscore-num{font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:700}
+.gscore-lbl{font-size:.7rem;color:var(--slate);display:block}
+
+/* FACTORS */
+.factors-title{font-size:.72rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--slate);margin-bottom:14px}
+.frow{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.fn{font-size:.78rem;color:var(--ink2);font-weight:500;min-width:115px}
+.ftrack{flex:1;height:7px;background:rgba(33,150,243,.12);border-radius:10px;overflow:hidden}
+.ffill{height:100%;border-radius:10px;transition:width 1.2s var(--ease)}
+.ftag{font-size:.7rem;font-weight:600;color:var(--slate);min-width:65px;text-align:right}
+
+/* RECO BOX */
+.reco{border-radius:var(--r-md);padding:17px 20px;margin:22px 0;border-left:4px solid;font-size:.88rem;line-height:1.66}
+
+/* JSON */
+.json-wrap{margin-top:14px;border-radius:var(--r-md);background:rgba(11,37,64,.04);
+  border:1px solid rgba(33,150,243,.12);overflow:hidden}
+.json-head{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 17px;border-bottom:1px solid rgba(33,150,243,.10);cursor:pointer}
+.json-head span{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--slate)}
+.json-arr{font-size:.78rem;color:var(--light);transition:transform .3s}
+.json-body{display:none;padding:14px 17px}
+.json-wrap.open .json-arr{transform:rotate(180deg)}
+.json-wrap.open .json-body{display:block}
+pre{font-size:.76rem;color:var(--ink2);white-space:pre-wrap;word-break:break-word;line-height:1.58;font-family:'Courier New',monospace}
+
+/* CSV COPY */
+.csv-btn{display:inline-flex;align-items:center;gap:7px;margin-top:12px;
+  padding:9px 18px;background:rgba(33,150,243,.09);border:1.5px solid rgba(33,150,243,.22);
+  border-radius:var(--r-sm);font-family:'Sora',sans-serif;font-size:.78rem;font-weight:600;
+  color:var(--ocean);cursor:pointer;transition:all .3s var(--ease)}
+.csv-btn:hover{background:rgba(33,150,243,.16)}
+
+/* EMAIL CARD */
+.email-card{background:linear-gradient(135deg,rgba(33,150,243,.08),rgba(21,101,192,.05));
+  border-radius:var(--r-xl);padding:34px 46px;border:1px solid rgba(33,150,243,.18);box-shadow:var(--sh-md)}
+.email-card h3{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--ink);margin-bottom:7px}
+.email-card p{font-size:.86rem;color:var(--slate);margin-bottom:18px;line-height:1.6}
+.email-row{display:flex;gap:10px}
+.email-row input{flex:1}
+.btn-email{display:flex;align-items:center;gap:7px;padding:12px 20px;background:var(--ink);
+  color:#fff;border:none;border-radius:var(--r-sm);font-family:'Sora',sans-serif;
+  font-size:.86rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .3s var(--ease)}
+.btn-email:hover{background:var(--sky)}
+.email-ok{display:none;align-items:center;gap:9px;margin-top:11px;padding:12px 15px;
+  background:rgba(0,137,123,.10);border:1px solid rgba(0,137,123,.25);
+  border-radius:var(--r-sm);font-size:.85rem;font-weight:500;color:var(--low)}
+.btn-retake{width:100%;margin-top:16px;padding:13px;background:transparent;
+  border:1.5px solid rgba(33,150,243,.28);border-radius:var(--r-sm);
+  font-family:'Sora',sans-serif;font-size:.88rem;font-weight:600;color:var(--sky);
+  cursor:pointer;transition:all .3s var(--ease)}
+.btn-retake:hover{background:rgba(33,150,243,.06)}
+
+/* DISCLAIMER */
+.disc{width:100%;max-width:740px;padding:0 24px 22px;text-align:center;
+  font-size:.73rem;color:var(--light);font-weight:300;font-style:italic}
+
+/* FOOTER */
+footer{width:100%;padding:26px 40px;background:rgba(245,250,255,.60);
+  backdrop-filter:blur(12px);border-top:1px solid var(--border);text-align:center;position:relative;z-index:1}
+footer p{font-size:.76rem;color:var(--light)}
+footer strong{color:var(--slate)}
+
+/* DIVIDER */
+.div{height:1px;margin:22px 0;background:linear-gradient(to right,transparent,rgba(33,150,243,.15),transparent)}
+
+/* ANIMATIONS */
+@keyframes up{from{opacity:0;transform:translateY(17px)}to{opacity:1;transform:translateY(0)}}
+
+/* RESPONSIVE */
+@media(max-width:580px){
+  nav{padding:14px 18px}
+  .fcard,.rcard,.email-card{padding:26px 20px}
+  .age-row{grid-template-columns:1fr}
+  .rg.c3{grid-template-columns:1fr 1fr}
+  .email-row{flex-direction:column}
+  .rhead{flex-direction:column}
+  .fn{min-width:88px}
+}
+</style>
+</head>
+<body>
+
+<!-- BG -->
+<div class="bg">
+  <div class="bg-c bg-c1"></div>
+  <div class="bg-c bg-c2"></div>
+  <div class="bg-c bg-c3"></div>
+  <div class="bg-grid"></div>
+</div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="pulse-wrap">
+    <div class="pulse"></div><div class="pulse"></div><div class="pulse"></div>
+    <div class="pulse-core">🧠</div>
+  </div>
+  <div>
+    <div class="load-label">Analyzing lifestyle patterns…</div>
+    <div class="load-sub">Processing your health data</div>
+  </div>
+  <div class="load-steps" id="loaderSteps"></div>
+</div>
+
+<div class="page">
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Migraine<span>Predictor</span></div>
+    <div class="nav-tag">AI Risk Predictor · Beta</div>
+  </nav>
+
+  <!-- ══════════════ HERO ══════════════ -->
+  <section class="hero" id="heroSec">
+    <div class="hero-kicker">ML-Powered Risk Estimation</div>
+    <h1>Know Your <em>Migraine Risk</em><br>Before It Strikes</h1>
+    <p>Answer 9 structured health questions. Our system generates a personalized migraine risk estimate and collects clean ML-ready data for our  AI model.</p>
+    <button class="cta-btn" onclick="startForm()">
+      Begin Assessment
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 5l3 3-3 3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div class="trust-row">
+      <div class="trust-pill">🔒 Private & Secure</div>
+      <div class="trust-pill">⚡ Instant Results</div>
+      <div class="trust-pill">🤖 ML-Ready Data</div>
+      <div class="trust-pill">🩺 Not a Diagnosis</div>
+    </div>
+  </section>
+
+  <!-- ══════════════ FORM ══════════════ -->
+  <section class="form-sec" id="formSec" style="display:none">
+
+    <!-- Progress -->
+    <div class="prog-wrap">
+      <div class="prog-meta">
+        <span class="prog-lbl" id="progLbl">Step 1 of 4</span>
+        <span class="prog-pct" id="progPct">0%</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+    <div class="dots" id="stepDots"></div>
+
+    <div class="fcard">
+
+      <!-- ── STEP 1 · Personal ── -->
+      <div class="step active" id="s1">
+        <div class="step-eye">Step 1 · Personal Info</div>
+        <div class="step-h">About You</div>
+        <div class="step-sub">Basic demographics to contextualize your risk profile.</div>
+
+        <div class="field" id="f-name">
+          <label>Full Name <span class="req">*</span></label>
+          <input type="text" id="inp-name" placeholder="e.g. Sarah Saad" autocomplete="name">
+          <div class="err-msg">Please enter your name.</div>
+        </div>
+
+        <div class="field" id="f-age">
+          <label>Age <span class="req">*</span></label>
+          <div class="age-row">
+            <input type="number" id="inp-age" placeholder="Enter age (1–100)" min="1" max="100" oninput="mapAge(this.value)">
+            <div class="age-badge" id="ageBadge">Age group auto-maps here</div>
+          </div>
+          <div class="hint">Enter a number 1–100 · Age group is auto-classified.</div>
+          <div class="err-msg">Please enter a valid age (1–100).</div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-next" onclick="go(1,2)">
+            Continue
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 2 · Lifestyle ── -->
+      <div class="step" id="s2">
+        <div class="step-eye">Step 2 · Lifestyle Habits</div>
+        <div class="step-h">Daily Habits</div>
+        <div class="step-sub">Lifestyle factors are among the strongest migraine predictors.</div>
+
+        <!-- Screen Exposure -->
+        <div class="field" id="f-screen">
+          <label>Average Screen Exposure Per Day <span class="req">*</span></label>
+          <select id="inp-screen">
+            <option value="" disabled selected>Select screen time</option>
+            <option value="Less than 2 hours">Less than 2 hours</option>
+            <option value="2–4 hours">2–4 hours</option>
+            <option value="2–5 hours">2–5 hours</option>
+            <option value="4–6 hours">4–6 hours</option>
+            <option value="5–6 hours">5–6 hours</option>
+            <option value="More than 6 hours">More than 6 hours</option>
+          </select>
+          <div class="err-msg">Please select your screen exposure.</div>
+        </div>
+
+        <!-- Sleep Hours -->
+        <div class="field" id="f-sleep">
+          <label>Average Sleep Hours Per Night <span class="req">*</span></label>
+          <select id="inp-sleep">
+            <option value="" disabled selected>Select sleep duration</option>
+            <option value="Less than 5 hours">Less than 5 hours</option>
+            <option value="5–6 hours">5–6 hours</option>
+            <option value="6–8 hours">6–8 hours</option>
+            <option value="More than 8 hours">More than 8 hours</option>
+          </select>
+          <div class="err-msg">Please select your sleep hours.</div>
+        </div>
+
+        <!-- Water Intake -->
+        <div class="field" id="f-water">
+          <label>Daily Water Intake <span class="req">*</span></label>
+          <select id="inp-water">
+            <option value="" disabled selected>Select water intake</option>
+            <option value="Less than 4 glasses">Less than 4 glasses</option>
+            <option value="4–6 glasses">4–6 glasses</option>
+            <option value="6–8 glasses">6–8 glasses</option>
+            <option value="More than 8 glasses">More than 8 glasses</option>
+          </select>
+          <div class="err-msg">Please select your water intake.</div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="go(2,1)">← Back</button>
+          <button class="btn-next" onclick="go(2,3)">
+            Continue
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 3 · Mental Health ── -->
+      <div class="step" id="s3">
+        <div class="step-eye">Step 3 · Mental Health</div>
+        <div class="step-h">Stress & Anxiety</div>
+        <div class="step-sub">Psychological factors significantly influence neurological risk.</div>
+
+        <!-- Stress Level -->
+        <div class="field" id="f-stress">
+          <label>Average Stress Level <span class="req">*</span></label>
+          <div class="rg c3">
+            <div class="ropt"><input type="radio" name="stress" id="sl" value="Low"><label for="sl"><span class="ico">😌</span> Low</label></div>
+            <div class="ropt"><input type="radio" name="stress" id="sm" value="Medium"><label for="sm"><span class="ico">😐</span> Medium</label></div>
+            <div class="ropt"><input type="radio" name="stress" id="sh" value="High"><label for="sh"><span class="ico">😰</span> High</label></div>
+          </div>
+          <div class="err-msg">Please select your stress level.</div>
+        </div>
+
+        <!-- Anxiety -->
+        <div class="field" id="f-anxiety">
+          <label>Do you experience frequent anxiety or tension? <span class="req">*</span></label>
+          <div class="rg c3">
+            <div class="ropt"><input type="radio" name="anxiety" id="ay" value="Yes"><label for="ay"><span class="ico">✅</span> Yes</label></div>
+            <div class="ropt"><input type="radio" name="anxiety" id="as" value="Sometimes"><label for="as"><span class="ico">🔄</span> Sometimes</label></div>
+            <div class="ropt"><input type="radio" name="anxiety" id="an" value="No"><label for="an"><span class="ico">🚫</span> No</label></div>
+          </div>
+          <div class="err-msg">Please answer this question.</div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="go(3,2)">← Back</button>
+          <button class="btn-next" onclick="go(3,4)">
+            Continue
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 4 · Medical History ── -->
+      <div class="step" id="s4">
+        <div class="step-eye">Step 4 · Medical History</div>
+        <div class="step-h">Health Background</div>
+        <div class="step-sub">Genetic history and current migraine status are key risk indicators.</div>
+
+        <!-- Family History -->
+        <div class="field" id="f-family">
+          <label>Family History of Migraines? <span class="req">*</span></label>
+          <div class="rg c3">
+            <div class="ropt"><input type="radio" name="family" id="fy" value="Yes"><label for="fy"><span class="ico">🧬</span> Yes</label></div>
+            <div class="ropt"><input type="radio" name="family" id="fn2" value="No"><label for="fn2"><span class="ico">❌</span> No</label></div>
+            <div class="ropt"><input type="radio" name="family" id="fu" value="Not sure"><label for="fu"><span class="ico">❓</span> Not sure</label></div>
+          </div>
+          <div class="err-msg">Please answer this question.</div>
+        </div>
+
+        <!-- Migraine — TARGET VARIABLE -->
+        <div class="field" id="f-migraine">
+          <label>
+            Do you experience migraines?
+            <span class="req">*</span>
+            <span class="target-tag">Target Variable</span>
+          </label>
+          <div class="rg c2">
+            <div class="ropt"><input type="radio" name="migraine" id="my" value="Yes"><label for="my"><span class="ico">🤕</span> Yes</label></div>
+            <div class="ropt"><input type="radio" name="migraine" id="mn" value="No"><label for="mn"><span class="ico">✨</span> No</label></div>
+          </div>
+          <div class="hint">📊 This is the ML prediction target — used to train the our model.</div>
+          <div class="err-msg">Please answer this question.</div>
+        </div>
+
+        <div class="div"></div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="go(4,3)">← Back</button>
+          <button class="btn-submit" onclick="doSubmit()">🔬 Analyze My Risk</button>
+        </div>
+      </div>
+
+    </div><!-- /fcard -->
+  </section>
+
+  <!-- ══════════════ RESULT ══════════════ -->
+  <section id="result-sec">
+
+    <div class="rcard">
+
+      <!-- Risk Header -->
+      <div class="rhead">
+        <div>
+          <h3>Assessment Complete</h3>
+          <div class="rname" id="rName">–</div>
+          <div class="rsub" id="rSub">–</div>
+        </div>
+        <div class="rbadge" id="rBadge">
+          <div class="rbadge-num" id="rScoreNum">–</div>
+          <div class="rbadge-lbl" id="rLvlLbl">–</div>
+        </div>
+      </div>
+
+      <!-- Gauge -->
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" viewBox="0 0 210 125">
+          <defs>
+            <linearGradient id="gg" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00897b"/>
+              <stop offset="50%" stop-color="#f57c00"/>
+              <stop offset="100%" stop-color="#c62828"/>
+            </linearGradient>
+            <filter id="glow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <path d="M 20 108 A 85 85 0 0 1 190 108" stroke="rgba(33,150,243,.12)" stroke-width="13" fill="none" stroke-linecap="round"/>
+          <path id="gArc" d="M 20 108 A 85 85 0 0 1 190 108" stroke="url(#gg)" stroke-width="13" fill="none" stroke-linecap="round" stroke-dasharray="267" stroke-dashoffset="267" filter="url(#glow)" style="transition:stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1)"/>
+          <line id="gNeedle" x1="105" y1="108" x2="105" y2="34" stroke="#1565c0" stroke-width="3.2" stroke-linecap="round" transform="rotate(-90,105,108)" style="transition:transform 1.4s cubic-bezier(.4,0,.2,1)"/>
+          <circle cx="105" cy="108" r="6.5" fill="#1565c0"/>
+          <text x="14" y="122" fill="#9bbdd4" font-size="8.5" font-family="Sora,sans-serif">Low</text>
+          <text x="95" y="24" fill="#9bbdd4" font-size="8.5" font-family="Sora,sans-serif" text-anchor="middle">Mid</text>
+          <text x="192" y="122" fill="#9bbdd4" font-size="8.5" font-family="Sora,sans-serif" text-anchor="end">High</text>
+        </svg>
+        <div class="gscore-wrap">
+          <span class="gscore-num" id="gScoreNum">0</span>
+          <span class="gscore-lbl">/ 100 Risk Score</span>
+        </div>
+      </div>
+
+      <!-- Factor Breakdown -->
+      <div style="margin:24px 0">
+        <div class="factors-title">Risk Factor Breakdown</div>
+        <div id="factorBars"></div>
+      </div>
+
+      <!-- Recommendation -->
+      <div class="reco" id="recoBox"></div>
+
+      <p style="font-size:.73rem;color:var(--light);font-style:italic;text-align:center">
+        ⚠ This is not a medical diagnosis. Always consult a qualified healthcare professional for clinical advice.
+      </p>
+
+      <div class="div"></div>
+
+      <!-- JSON Output -->
+      <div class="json-wrap" id="jsonWrap">
+        <div class="json-head" onclick="toggleJSON()">
+          <span>🔬 ML-Ready JSON Output</span>
+          <span class="json-arr">▾</span>
+        </div>
+        <div class="json-body">
+          <pre id="jsonOut"></pre>
+          <button class="csv-btn" onclick="copyJSON()">📋 Copy JSON</button>
+        </div>
+      </div>
+
+    </div><!-- /rcard -->
+
+    <!-- Email Capture -->
+    <div class="email-card">
+      <h3>📩 Receive Your Full AI Report</h3>
+      <p>Our advanced ML model is in development. Leave your email and receive a comprehensive personalized migraine report the moment it launches. Your anonymized data helps train a better model for everyone.</p>
+      <div class="email-row">
+        <input type="email" id="emailIn" placeholder="your@email.com">
+        <button class="btn-email" onclick="sendEmail()">✉ Send My Report</button>
+      </div>
+      <div class="email-ok" id="emailOk">
+        <span>✅</span>
+        <span>You're on the waitlist! Report will be sent when the AI model is active.</span>
+      </div>
+    </div>
+
+    <button class="btn-retake" onclick="retake()">↩ Retake Assessment</button>
+
+  </section>
+
+  <div class="disc" id="discStrip" style="display:none">
+    MigraineIQ is a risk estimation tool for research and informational purposes only. It is not a substitute for professional medical advice, diagnosis, or treatment.
+  </div>
+
+  <footer>
+    <p><strong>MigrainePredictor</strong> · Migraine Risk Predictor · ML Integration Pending</p>
+    <p style="margin-top:4px">From Heart❤️ By 👉SAAd👈 · Data collected for ML model training · 2026</p>
+  </footer>
+
+</div><!-- /page -->
+
+<script>
+/* ═══════════════════ CONFIG ═══════════════════ */
+const STEPS = 4;
+let cur = 1;
+let payload = {};
+
+/* ═══════════════════ INIT DOTS ═══════════════════ */
+(function(){
+  const c = document.getElementById('stepDots');
+  for(let i=1;i<=STEPS;i++){
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===1?' active':'');
+    d.id = 'dot'+i;
+    c.appendChild(d);
+  }
+})();
+
+function updateProg(s){
+  const pct = Math.round(((s-1)/STEPS)*100);
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progPct').textContent = pct+'%';
+  document.getElementById('progLbl').textContent = `Step ${s} of ${STEPS}`;
+  for(let i=1;i<=STEPS;i++){
+    const d = document.getElementById('dot'+i);
+    d.className = 'dot'+(i===s?' active':i<s?' done':'');
+  }
+}
+
+/* ═══════════════════ START ═══════════════════ */
+function startForm(){
+  document.getElementById('heroSec').style.display = 'none';
+  document.getElementById('formSec').style.display = 'block';
+  document.getElementById('formSec').scrollIntoView({behavior:'smooth'});
+  updateProg(1);
+}
+
+/* ═══════════════════ AGE MAP ═══════════════════ */
+function mapAge(v){
+  const a = parseInt(v), b = document.getElementById('ageBadge');
+  let g = '';
+  if(!v||isNaN(a))      g = '';
+  else if(a < 18)       g = 'Under 18';
+  else if(a <= 25)      g = '18-25';
+  else if(a <= 35)      g = '26-35';
+  else if(a <= 50)      g = '36-50';
+  else                  g = '50+';
+
+  if(g){b.textContent='📊 Age Group: '+g;b.classList.add('on');b.dataset.group=g;}
+  else{b.textContent='Age group auto-maps here';b.classList.remove('on');b.dataset.group='';}
+}
+
+/* ═══════════════════ VALIDATION ═══════════════════ */
+function clearErrs(s){
+  document.querySelectorAll(`#s${s} .field`).forEach(f=>f.classList.remove('has-err'));
+  document.querySelectorAll(`#s${s} input,#s${s} select`).forEach(el=>el.classList.remove('error'));
+}
+function markErr(fId){document.getElementById(fId).classList.add('has-err')}
+
+function validate(s){
+  clearErrs(s);
+  let ok = true;
+
+  if(s===1){
+    if(!document.getElementById('inp-name').value.trim()){markErr('f-name');ok=false;}
+    const a = parseInt(document.getElementById('inp-age').value);
+    if(!a||a<1||a>100){markErr('f-age');ok=false;}
+  }
+  if(s===2){
+    ['screen','sleep','water'].forEach(id=>{
+      if(!document.getElementById('inp-'+id).value){markErr('f-'+id);ok=false;}
+    });
+  }
+  if(s===3){
+    if(!document.querySelector('input[name="stress"]:checked')){markErr('f-stress');ok=false;}
+    if(!document.querySelector('input[name="anxiety"]:checked')){markErr('f-anxiety');ok=false;}
+  }
+  if(s===4){
+    if(!document.querySelector('input[name="family"]:checked')){markErr('f-family');ok=false;}
+    if(!document.querySelector('input[name="migraine"]:checked')){markErr('f-migraine');ok=false;}
+  }
+  return ok;
+}
+
+/* ═══════════════════ NAVIGATION ═══════════════════ */
+function go(from, to){
+  if(to > from && !validate(from)) return;
+  document.getElementById('s'+from).classList.remove('active');
+  document.getElementById('s'+to).classList.add('active');
+  cur = to;
+  updateProg(cur);
+  document.getElementById('formSec').scrollIntoView({behavior:'smooth'});
+}
+
+/* ═══════════════════ COLLECT DATA → ML-READY JSON ═══════════════════ */
+function collect(){
+  const age = parseInt(document.getElementById('inp-age').value);
+  const ageBadge = document.getElementById('ageBadge');
+  return {
+    name:           document.getElementById('inp-name').value.trim(),
+    age:            age,
+    age_group:      ageBadge.dataset.group || '',
+    screen_time:    document.getElementById('inp-screen').value,
+    sleep:          document.getElementById('inp-sleep').value,
+    water_intake:   document.getElementById('inp-water').value,
+    stress:         document.querySelector('input[name="stress"]:checked').value,
+    anxiety:        document.querySelector('input[name="anxiety"]:checked').value,
+    family_history: document.querySelector('input[name="family"]:checked').value,
+    migraine:       document.querySelector('input[name="migraine"]:checked').value,
+    timestamp:      new Date().toISOString()
+  };
+}
+
+/* ═══════════════════ RISK SCORING ENGINE ═══════════════════ */
+/*
+  Weights designed to align with feature importance
+  typically found in migraine ML models.
+  Replace calcRisk() with fetch('/api/predict', ...) when backend is ready.
+*/
+function calcRisk(d){
+  let score = 0;
+  const factors = [];
+
+  // Screen time → 0–18 pts
+  const screenW = {
+    'Less than 2 hours':2, '2–4 hours':6, '2–5 hours':8,
+    '4–6 hours':12, '5–6 hours':14, 'More than 6 hours':18
+  };
+  const sv = screenW[d.screen_time]||0;
+  factors.push({name:'Screen Time', score:sv, max:18, tag:d.screen_time});
+  score += sv;
+
+  // Sleep → 0–20 pts (inverted — less sleep = higher risk)
+  const sleepW = {'Less than 5 hours':20,'5–6 hours':14,'6–8 hours':4,'More than 8 hours':3};
+  const slv = sleepW[d.sleep]||0;
+  factors.push({name:'Sleep Quality', score:slv, max:20, tag:d.sleep});
+  score += slv;
+
+  // Water → 0–14 pts (inverted)
+  const waterW = {'Less than 4 glasses':14,'4–6 glasses':9,'6–8 glasses':3,'More than 8 glasses':1};
+  const wv = waterW[d.water_intake]||0;
+  factors.push({name:'Hydration', score:wv, max:14, tag:d.water_intake});
+  score += wv;
+
+  // Stress → 0–20 pts
+  const stressW = {'Low':2,'Medium':10,'High':20};
+  const stv = stressW[d.stress]||0;
+  factors.push({name:'Stress Level', score:stv, max:20, tag:d.stress});
+  score += stv;
+
+  // Anxiety → 0–15 pts
+  const anxW = {'No':0,'Sometimes':7,'Yes':15};
+  const av = anxW[d.anxiety]||0;
+  factors.push({name:'Anxiety / Tension', score:av, max:15, tag:d.anxiety});
+  score += av;
+
+  // Family history → 0–18 pts
+  const famW = {'No':0,'Not sure':6,'Yes':18};
+  const fv = famW[d.family_history]||0;
+  factors.push({name:'Family History', score:fv, max:18, tag:d.family_history});
+  score += fv;
+
+  // Current migraines (target var context) → 0–15 pts
+  const migV = d.migraine === 'Yes' ? 15 : 0;
+  factors.push({name:'Current Migraines', score:migV, max:15, tag:d.migraine});
+  score += migV;
+
+  const maxPossible = 18+20+14+20+15+18+15; // 120
+  const normalized = Math.round((score/maxPossible)*100);
+  const level = normalized < 34 ? 'low' : normalized < 65 ? 'medium' : 'high';
+
+  return {score:normalized, level, factors};
+}
+
+/* ═══════════════════ SUBMIT ═══════════════════ */
+function doSubmit(){
+  if(!validate(4)) return;
+  const data = collect();
+  Object.assign(payload, data);
+
+  // Store ML-ready data in sessionStorage
+  try{
+    const arr = JSON.parse(sessionStorage.getItem('miq_data')||'[]');
+    arr.push(data);
+    sessionStorage.setItem('miq_data', JSON.stringify(arr));
+  }catch(e){}
+
+  // Show loader
+  const loader = document.getElementById('loader');
+  loader.style.display = 'flex';
+  const steps = [
+    '📊 Parsing lifestyle factors…',
+    '🔍 Evaluating sleep & hydration patterns…',
+    '🧬 Assessing genetic risk indicators…',
+    '⚡ Computing weighted risk score…',
+    '✅ Analysis complete'
+  ];
+  const sc = document.getElementById('loaderSteps');
+  sc.innerHTML = '';
+  steps.forEach((t,i)=>{
+    const div = document.createElement('div');
+    div.className = 'load-step';
+    div.style.animationDelay = i*0.38+'s';
+    div.innerHTML = `<div class="ldot"></div><span>${t}</span>`;
+    sc.appendChild(div);
+  });
+
+  setTimeout(()=>{
+    loader.style.display='none';
+    showResult(data);
+  }, 2500);
+}
+
+/* ═══════════════════ RESULT ═══════════════════ */
+const RECO_MAP = {
+  low:{
+    bgc:'#e0f2f1', clr:'#00897b', border:'#00897b',
+    lvl:'Low Risk',
+    sub:'Your current lifestyle patterns suggest a low migraine risk.',
+    msg:'<strong>Based on your lifestyle patterns, your migraine risk appears low.</strong> Your habits reflect a relatively healthy neurological baseline. Continue maintaining consistent sleep, staying well-hydrated, and managing stress proactively. Periodic reassessment is recommended as lifestyle factors change over time.'
+  },
+  medium:{
+    bgc:'#fff3e0', clr:'#f57c00', border:'#f57c00',
+    lvl:'Medium Risk',
+    sub:'Several lifestyle factors are elevating your risk level.',
+    msg:'<strong>Based on your lifestyle patterns, your migraine risk appears moderate.</strong> Some areas — such as screen exposure, sleep quality, or stress levels — may be contributing to elevated risk. Focus on improving sleep consistency, increasing daily water intake to 6–8 glasses, and exploring stress-reduction practices such as mindfulness or light exercise.'
+  },
+  high:{
+    bgc:'#ffebee', clr:'#c62828', border:'#c62828',
+    lvl:'High Risk',
+    sub:'Multiple risk factors identified — professional attention recommended.',
+    msg:'<strong>Based on your lifestyle patterns, your migraine risk appears high.</strong> Multiple contributing factors have been identified. We strongly encourage you to consult a healthcare professional. Immediate steps: reduce screen time, prioritize 7–8 hours of quality sleep, drink at least 8 glasses of water daily, and explore evidence-based stress management techniques.'
+  }
+};
+
+function barClr(pct){
+  if(pct<38) return '#00897b';
+  if(pct<68) return '#f57c00';
+  return '#c62828';
+}
+
+function showResult(data){
+  document.getElementById('formSec').style.display = 'none';
+  const {score, level, factors} = calcRisk(data);
+  const cfg = RECO_MAP[level];
+
+  // Name & subtitle
+  document.getElementById('rName').textContent = `Hi ${data.name || 'there'}, your assessment is ready.`;
+  document.getElementById('rSub').textContent = cfg.sub;
+
+  // Badge
+  const badge = document.getElementById('rBadge');
+  badge.style.background = cfg.bgc;
+  badge.style.color = cfg.clr;
+  badge.style.border = `1.5px solid ${cfg.clr}55`;
+  document.getElementById('rScoreNum').textContent = score;
+  document.getElementById('rLvlLbl').textContent = cfg.lvl;
+
+  // Gauge
+  setTimeout(()=>{
+    const arc = document.getElementById('gArc');
+    const needle = document.getElementById('gNeedle');
+    const numEl = document.getElementById('gScoreNum');
+    const total = 267;
+    arc.style.strokeDashoffset = total - (score/100)*total;
+    const angle = (score/100)*180 - 90;
+    needle.setAttribute('transform',`rotate(${angle},105,108)`);
+    numEl.style.color = cfg.clr;
+    let c=0, step=score/55;
+    const t = setInterval(()=>{ c=Math.min(c+step,score); numEl.textContent=Math.round(c); if(c>=score)clearInterval(t); }, 25);
+  }, 350);
+
+  // Factor bars
+  const bc = document.getElementById('factorBars');
+  bc.innerHTML = '';
+  factors.forEach(f=>{
+    const pct = Math.round((f.score/f.max)*100);
+    const row = document.createElement('div');
+    row.className = 'frow';
+    row.innerHTML = `
+      <div class="fn">${f.name}</div>
+      <div class="ftrack"><div class="ffill" style="width:0%;background:${barClr(pct)}" data-t="${pct}%"></div></div>
+      <div class="ftag">${f.tag}</div>`;
+    bc.appendChild(row);
+  });
+  setTimeout(()=>{ document.querySelectorAll('.ffill').forEach(el=>el.style.width=el.dataset.t); }, 600);
+
+  // Reco box
+  const rb = document.getElementById('recoBox');
+  rb.style.background = cfg.bgc;
+  rb.style.borderColor = cfg.border;
+  rb.style.color = '#0b2540';
+  rb.innerHTML = cfg.msg;
+
+  // JSON
+  document.getElementById('jsonOut').textContent = JSON.stringify(data, null, 2);
+
+  // Show result
+  document.getElementById('result-sec').style.display = 'block';
+  document.getElementById('discStrip').style.display = 'block';
+  setTimeout(()=>document.getElementById('result-sec').scrollIntoView({behavior:'smooth'}), 100);
+}
+
+/* ═══════════════════ JSON TOGGLE & COPY ═══════════════════ */
+function toggleJSON(){ document.getElementById('jsonWrap').classList.toggle('open'); }
+function copyJSON(){
+  const text = document.getElementById('jsonOut').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.querySelector('.csv-btn');
+    btn.textContent = '✅ Copied!';
+    setTimeout(()=>btn.textContent='📋 Copy JSON', 2000);
+  });
+}
+
+/* ═══════════════════ EMAIL ═══════════════════ */
+function sendEmail(){
+  const email = document.getElementById('emailIn').value.trim();
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    document.getElementById('emailIn').style.borderColor='#c62828';
+    return;
+  }
+  document.getElementById('emailIn').style.borderColor='';
+  try{ sessionStorage.setItem('miq_email', JSON.stringify({email, ts:new Date().toISOString()})); }catch(e){}
+  document.getElementById('emailOk').style.display = 'flex';
+  document.getElementById('emailIn').value = '';
+  const btn = document.querySelector('.btn-email');
+  btn.textContent = '✓ Registered'; btn.disabled = true;
+}
+
+/* ═══════════════════ RETAKE ═══════════════════ */
+function retake(){
+  document.querySelectorAll('input[type="text"],input[type="number"],input[type="email"],select')
+    .forEach(el=>{el.value='';el.classList.remove('error')});
+  document.querySelectorAll('input[type="radio"]').forEach(r=>r.checked=false);
+  document.querySelectorAll('.field').forEach(f=>f.classList.remove('has-err'));
+  mapAge('');
+  document.querySelectorAll('.step').forEach((p,i)=>p.classList.toggle('active',i===0));
+  cur=1; updateProg(1);
+  document.getElementById('emailOk').style.display='none';
+  const eb = document.querySelector('.btn-email');
+  if(eb){eb.textContent='✉ Send My Report';eb.disabled=false;}
+  document.getElementById('result-sec').style.display='none';
+  document.getElementById('discStrip').style.display='none';
+  document.getElementById('formSec').style.display='block';
+  document.getElementById('formSec').scrollIntoView({behavior:'smooth'});
+}
+
+/*
+  ════════════════════════════════════════
+  FUTURE ML BACKEND INTEGRATION POINT
+  ════════════════════════════════════════
+  Replace calcRisk(data) with:
+
+  async function fetchMLPrediction(data) {
+    const res = await fetch('https://your-api.com/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    // Expected: { score: 72, level: "high", probabilities: {...} }
+    return result;
+  }
+
+  The JSON structure of `data` matches the
+  training dataset schema exactly. No transformation needed.
+  ════════════════════════════════════════
+*/
+</script>
+</body>
+</html>
