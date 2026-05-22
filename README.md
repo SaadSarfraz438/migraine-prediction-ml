@@ -2,6 +2,8 @@
 
 A machine learning-based migraine prediction system developed using real-world survey data, data preprocessing, feature engineering, and predictive modeling techniques.
 
+[![Prediction](https://img.shields.io/badge/View%20migraine_Pridiction-Get%20Pridiction-0A66C2?style=for-the-badge&logo=github&logoColor=white)](https://saadsarfraz438.github.io/migraine-prediction-ml/)
+
 ---
 
 ##  Project Overview
