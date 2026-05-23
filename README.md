@@ -38,6 +38,7 @@ Survey-based migraine dataset collected through **Google Forms**.
 ### Dataset Files
 - `Part 1`: Raw survey responses (`100 responses`)
 - `Part 2`: Processed and engineered dataset (`CSV format`)
+- `Part 3`: Colabbook (python code)
 
 ### Features Included
 The dataset contains migraine-related factors such as:
@@ -119,6 +120,8 @@ Example:
 | Sometimes  |  1            |
 | Often      |  2            |
 
+
+
 #### Multiple Choice Handling
 Columns containing multiple answers were:
 
@@ -171,8 +174,8 @@ Machine learning algorithms were applied to train the migraine prediction system
 ##### Models explored include:
 
 Decision Tree Classifier
-Random Forest (optional if used)
-Logistic Regression (optional if used)
+Random Forest Classifier
+Logistic Regression 
 
 The model predicts whether a person is likely to experience migraines based on survey inputs.
 
@@ -214,7 +217,7 @@ Google Colab / Jupyter Notebook
 
 Planned enhancements include:
 
-Web-Based Prediction System
+Web-Based Prediction System (working)
 
 ###### Users will be able to:
 
@@ -227,7 +230,7 @@ Get instant migraine prediction results
 Flask
 Streamlit
 FastAPI
- Local System Execution
+Local System Execution
 
 #### Users can also:
 
